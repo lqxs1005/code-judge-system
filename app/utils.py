@@ -5,10 +5,10 @@ from functools import wraps
 from app.models import User
 from app.extensions import db
 
-SECRET_KEY = current_app.config.get('SECRET_KEY', 'dev-secret-key')
 JWT_EXP_DELTA_SECONDS = 3600 * 24  # 1天
 
 def generate_token(user_id):
+    SECRET_KEY = current_app.config.get('SECRET_KEY', 'dev-secret-key')
     payload = {
         'user_id': user_id,
         'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=JWT_EXP_DELTA_SECONDS)
@@ -21,6 +21,7 @@ def generate_token(user_id):
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        SECRET_KEY = current_app.config.get('SECRET_KEY', 'dev-secret-key')
         auth_header = request.headers.get('Authorization', None)
         if not auth_header or not auth_header.startswith('Bearer '):
             return jsonify({'msg': 'Missing or invalid Authorization header'}), 401
